@@ -2,6 +2,7 @@ package org.highmed.dsf.fhir.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.hl7.fhir.exceptions.DefinitionException;
 import org.hl7.fhir.r4.conformance.ProfileUtilities;
@@ -20,15 +21,24 @@ public class SnapshotGeneratorImpl implements SnapshotGenerator
 {
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotGeneratorImpl.class);
 
+	private final FhirContext fhirContext;
+	private final IValidationSupport validationSupport;
+
 	private final IWorkerContext worker;
 
 	public SnapshotGeneratorImpl(FhirContext fhirContext, IValidationSupport validationSupport)
 	{
+		this.fhirContext = fhirContext;
+		this.validationSupport = validationSupport;
+
 		worker = createWorker(fhirContext, validationSupport);
 	}
 
 	protected HapiWorkerContext createWorker(FhirContext context, IValidationSupport validationSupport)
 	{
+		Objects.requireNonNull(context, "context");
+		Objects.requireNonNull(validationSupport, "validationSupport");
+
 		return new HapiWorkerContext(context, validationSupport);
 	}
 
@@ -45,7 +55,23 @@ public class SnapshotGeneratorImpl implements SnapshotGenerator
 		logger.debug("Generating snapshot for StructureDefinition with id {}, url {}, version {}",
 				differential.getIdElement().getIdPart(), differential.getUrl(), differential.getVersion());
 
-		StructureDefinition base = worker.fetchTypeDefinition(differential.getType());
+		logger.debug("Loading base StructureDefinition snapshot with url {}", differential.getBaseDefinition());
+		StructureDefinition base = validationSupport.fetchStructureDefinition(fhirContext,
+				differential.getBaseDefinition());
+
+		if (base == null)
+		{
+			logger.warn("StructureDefinition with url {} not found", differential.getBaseDefinition());
+			throw new RuntimeException(
+					"StructureDefinition with url " + differential.getBaseDefinition() + " not found");
+		}
+		else if (!base.hasSnapshot())
+		{
+			// TODO consider implementing ad-hoc snapshot generation for the base definition if only differential found.
+			logger.warn("StructureDefinition with url {} found, but not a snapshot", differential.getBaseDefinition());
+			throw new RuntimeException(
+					"StructureDefinition with url " + differential.getBaseDefinition() + " found, but not a snapshot");
+		}
 
 		/* ProfileUtilities is not thread safe */
 		List<ValidationMessage> messages = new ArrayList<>();
