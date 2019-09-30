@@ -45,12 +45,12 @@ public class SnapshotGeneratorImpl implements SnapshotGenerator
 	@Override
 	public SnapshotWithValidationMessages generateSnapshot(StructureDefinition differential)
 	{
-		return generateSnapshot("", differential);
+		return generateSnapshot(differential, "", "");
 	}
 
 	@Override
-	public SnapshotWithValidationMessages generateSnapshot(String baseAbsoluteUrlPrefix,
-			StructureDefinition differential)
+	public SnapshotWithValidationMessages generateSnapshot(StructureDefinition differential,
+			String baseAbsoluteUrlPrefix, String baseAbsoluteWebUrlPrefix)
 	{
 		logger.debug("Generating snapshot for StructureDefinition with id {}, url {}, version {}",
 				differential.getIdElement().getIdPart(), differential.getUrl(), differential.getVersion());
@@ -113,7 +113,7 @@ public class SnapshotGeneratorImpl implements SnapshotGenerator
 			}
 		};
 
-		profileUtils.generateSnapshot(base, differential, baseAbsoluteUrlPrefix, null);
+		profileUtils.generateSnapshot(base, differential, baseAbsoluteUrlPrefix, baseAbsoluteWebUrlPrefix, null);
 
 		if (messages.isEmpty())
 			logger.debug("Snapshot generated for StructureDefinition with id {}, url {}, version {}",

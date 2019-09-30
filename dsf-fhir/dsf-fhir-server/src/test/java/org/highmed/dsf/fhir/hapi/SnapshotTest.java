@@ -47,13 +47,12 @@ public class SnapshotTest
 
 		ProfileUtilities profileUtis = new ProfileUtilities(worker, messages, null);
 
-		String url = "";
 		String profileName = "highmed-data-sharing-task";
 		StructureDefinition base = worker.fetchTypeDefinition(Task.class.getAnnotation(ResourceDef.class).name())
 				.copy();
 		StructureDefinition derived = reader.readXml(Paths.get("src/test/resources/profiles/highmed-task-0.5.0.xml"));
 
-		profileUtis.generateSnapshot(base, derived, url, profileName);
+		profileUtis.generateSnapshot(base, derived, "", "", profileName);
 
 		if (logger.isDebugEnabled())
 			logger.debug("Snapshot: {}", context.newXmlParser().setPrettyPrint(true).encodeResourceToString(derived));

@@ -138,6 +138,7 @@
     <element id="Task.output:error">
       <path value="Task.output" />
       <sliceName value="error" />
+      <max value="1" />
     </element>
     <element id="Task.output:error.type.coding">
       <path value="Task.output.type.coding" />
