@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import ca.uhn.fhir.context.FhirContext;
 
-public class FeasibiliyTaskProfilesTest
+public class ExtendedTaskProfilesTest
 {
-	private static final Logger logger = LoggerFactory.getLogger(FeasibiliyTaskProfilesTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExtendedTaskProfilesTest.class);
 
 	@Test(expected = RuntimeException.class)
 	public void testGeneratSnapshotForExtendedTaskWithoutBaseTaskSnapshot() throws Exception
