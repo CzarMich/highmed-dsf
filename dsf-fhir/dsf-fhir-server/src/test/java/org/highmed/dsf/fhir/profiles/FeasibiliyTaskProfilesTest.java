@@ -12,6 +12,7 @@ import org.highmed.dsf.fhir.service.SnapshotGenerator.SnapshotWithValidationMess
 import org.highmed.dsf.fhir.service.SnapshotGeneratorImpl;
 import org.highmed.dsf.fhir.service.StructureDefinitionReader;
 import org.hl7.fhir.r4.model.StructureDefinition;
+import org.hl7.fhir.r4.model.StructureDefinition.StructureDefinitionSnapshotComponent;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,67 +24,75 @@ public class FeasibiliyTaskProfilesTest
 	private static final Logger logger = LoggerFactory.getLogger(FeasibiliyTaskProfilesTest.class);
 
 	@Test(expected = RuntimeException.class)
-	public void testGeneratSnapshotForTaskRequestSimpleFeasibilityWithoutBaseSnapshot() throws Exception
+	public void testGeneratSnapshotForExtendedTaskWithoutBaseTaskSnapshot() throws Exception
 	{
 		FhirContext context = FhirContext.forR4();
 		StructureDefinitionReader reader = new StructureDefinitionReader(context);
 
-		StructureDefinition highmedTaskBase = reader
-				.readXml(Paths.get("src/test/resources/profiles/highmed-task-base-0.1.0.xml"));
-		StructureDefinition highmedTaskRequestSimpleFeasibility = reader
-				.readXml(Paths.get("src/test/resources/profiles/highmed-task-request-simple-feasibility-0.1.0.xml"));
+		StructureDefinition baseTask = reader.readXml(Paths.get("src/test/resources/profiles/BaseTask.xml"));
+		StructureDefinition extendedTask = reader.readXml(Paths.get("src/test/resources/profiles/ExtendedTask.xml"));
 
 		SnapshotGenerator generator = new SnapshotGeneratorImpl(context,
 				new DefaultProfileValidationSupportWithCustomResources(Collections.emptyList(), Collections.emptyList(),
 						Collections.emptyList()));
 
-		SnapshotWithValidationMessages highmedTaskBaseSnapshot = generator.generateSnapshot(highmedTaskBase);
+		SnapshotWithValidationMessages highmedTaskBaseSnapshot = generator.generateSnapshot(baseTask);
 
 		assertNotNull(highmedTaskBaseSnapshot);
 		assertNotNull(highmedTaskBaseSnapshot.getSnapshot());
 		assertNotNull(highmedTaskBaseSnapshot.getMessages());
 		assertTrue(highmedTaskBaseSnapshot.getMessages().isEmpty());
 
-		generator.generateSnapshot(highmedTaskRequestSimpleFeasibility);
+		generator.generateSnapshot(extendedTask);
 	}
 
 	@Test
-	public void testGeneratSnapshotForTaskRequesSimpleFeasibilityWithBaseSnapshot() throws Exception
+	public void testGeneratSnapshotForExtendedTaskWithBaseTaskSnapshot() throws Exception
 	{
 		FhirContext context = FhirContext.forR4();
 		StructureDefinitionReader reader = new StructureDefinitionReader(context);
 
-		StructureDefinition highmedTaskBase = reader
-				.readXml(Paths.get("src/test/resources/profiles/highmed-task-base-0.1.0.xml"));
-		StructureDefinition highmedTaskRequestSimpleFeasibility = reader
-				.readXml(Paths.get("src/test/resources/profiles/highmed-task-request-simple-feasibility-0.1.0.xml"));
+		StructureDefinition baseTask = reader.readXml(Paths.get("src/test/resources/profiles/BaseTask.xml"));
+		StructureDefinition extendedTask = reader.readXml(Paths.get("src/test/resources/profiles/ExtendedTask.xml"));
 
 		SnapshotGenerator generator = new SnapshotGeneratorImpl(context,
 				new DefaultProfileValidationSupportWithCustomResources(Collections.emptyList(), Collections.emptyList(),
 						Collections.emptyList()));
 
-		SnapshotWithValidationMessages highmedTaskBaseSnapshot = generator.generateSnapshot(highmedTaskBase);
+		SnapshotWithValidationMessages baseTaskSnapshotResult = generator.generateSnapshot(baseTask);
 
-		assertNotNull(highmedTaskBaseSnapshot);
-		assertNotNull(highmedTaskBaseSnapshot.getSnapshot());
-		assertNotNull(highmedTaskBaseSnapshot.getMessages());
-		assertTrue(highmedTaskBaseSnapshot.getMessages().isEmpty());
+		assertNotNull(baseTaskSnapshotResult);
+		assertNotNull(baseTaskSnapshotResult.getSnapshot());
+		assertNotNull(baseTaskSnapshotResult.getMessages());
+		assertTrue(baseTaskSnapshotResult.getMessages().isEmpty());
+
+		StructureDefinition baseTaskSnapshot = baseTaskSnapshotResult.getSnapshot();
+		baseTaskSnapshot.setSnapshot(
+				new StructureDefinitionSnapshotComponent().setElement(baseTaskSnapshot.getSnapshot().getElement()));
 
 		logger.info("Snapshot generated for StructureDefinition with url {}\n{}",
-				highmedTaskBaseSnapshot.getSnapshot().getUrl(), context.newXmlParser().setPrettyPrint(true)
-						.encodeResourceToString(highmedTaskBaseSnapshot.getSnapshot()));
+				baseTaskSnapshotResult.getSnapshot().getUrl(), context.newXmlParser().setPrettyPrint(true)
+						.encodeResourceToString(baseTaskSnapshotResult.getSnapshot()));
 
 		generator = new SnapshotGeneratorImpl(context,
 				new DefaultProfileValidationSupportWithCustomResources(
-						Collections.singleton(highmedTaskBaseSnapshot.getSnapshot()), Collections.emptyList(),
+						Collections.singleton(baseTaskSnapshotResult.getSnapshot()), Collections.emptyList(),
 						Collections.emptyList()));
 
-		SnapshotWithValidationMessages highmedTaskRequestSimpleFeasibilitySnapshot = generator
-				.generateSnapshot(highmedTaskRequestSimpleFeasibility);
+		SnapshotWithValidationMessages extendedTaskSnaphotResult = generator
+				.generateSnapshot(extendedTask);
 
-		assertNotNull(highmedTaskRequestSimpleFeasibilitySnapshot);
-		assertNotNull(highmedTaskRequestSimpleFeasibilitySnapshot.getSnapshot());
-		assertNotNull(highmedTaskRequestSimpleFeasibilitySnapshot.getMessages());
-		assertTrue(highmedTaskRequestSimpleFeasibilitySnapshot.getMessages().isEmpty());
+		assertNotNull(extendedTaskSnaphotResult);
+		assertNotNull(extendedTaskSnaphotResult.getSnapshot());
+		assertNotNull(extendedTaskSnaphotResult.getMessages());
+		// assertTrue(highmedTaskRequestSimpleFeasibilitySnapshot.getMessages().isEmpty());
+
+		StructureDefinition extendedTaskSnapshot = extendedTaskSnaphotResult.getSnapshot();
+		extendedTaskSnapshot.setSnapshot(
+				new StructureDefinitionSnapshotComponent().setElement(extendedTaskSnapshot.getSnapshot().getElement()));
+
+		logger.info("Snapshot generated for StructureDefinition with url {}\n{}",
+				baseTaskSnapshotResult.getSnapshot().getUrl(),
+				context.newXmlParser().setPrettyPrint(true).encodeResourceToString(extendedTaskSnapshot));
 	}
 }
