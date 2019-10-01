@@ -64,28 +64,26 @@ public class FeasibiliyTaskProfilesTest
 		assertNotNull(baseTaskSnapshotResult);
 		assertNotNull(baseTaskSnapshotResult.getSnapshot());
 		assertNotNull(baseTaskSnapshotResult.getMessages());
-		assertTrue(baseTaskSnapshotResult.getMessages().isEmpty());
 
 		StructureDefinition baseTaskSnapshot = baseTaskSnapshotResult.getSnapshot();
 		baseTaskSnapshot.setSnapshot(
 				new StructureDefinitionSnapshotComponent().setElement(baseTaskSnapshot.getSnapshot().getElement()));
 
 		logger.info("Snapshot generated for StructureDefinition with url {}\n{}",
-				baseTaskSnapshotResult.getSnapshot().getUrl(), context.newXmlParser().setPrettyPrint(true)
-						.encodeResourceToString(baseTaskSnapshotResult.getSnapshot()));
+				baseTaskSnapshotResult.getSnapshot().getUrl(),
+				context.newXmlParser().encodeResourceToString(baseTaskSnapshotResult.getSnapshot()));
+		assertTrue(baseTaskSnapshotResult.getMessages().isEmpty());
 
 		generator = new SnapshotGeneratorImpl(context,
 				new DefaultProfileValidationSupportWithCustomResources(
 						Collections.singleton(baseTaskSnapshotResult.getSnapshot()), Collections.emptyList(),
 						Collections.emptyList()));
 
-		SnapshotWithValidationMessages extendedTaskSnaphotResult = generator
-				.generateSnapshot(extendedTask);
+		SnapshotWithValidationMessages extendedTaskSnaphotResult = generator.generateSnapshot(extendedTask);
 
 		assertNotNull(extendedTaskSnaphotResult);
 		assertNotNull(extendedTaskSnaphotResult.getSnapshot());
 		assertNotNull(extendedTaskSnaphotResult.getMessages());
-		// assertTrue(highmedTaskRequestSimpleFeasibilitySnapshot.getMessages().isEmpty());
 
 		StructureDefinition extendedTaskSnapshot = extendedTaskSnaphotResult.getSnapshot();
 		extendedTaskSnapshot.setSnapshot(
@@ -93,6 +91,8 @@ public class FeasibiliyTaskProfilesTest
 
 		logger.info("Snapshot generated for StructureDefinition with url {}\n{}",
 				baseTaskSnapshotResult.getSnapshot().getUrl(),
-				context.newXmlParser().setPrettyPrint(true).encodeResourceToString(extendedTaskSnapshot));
+				context.newXmlParser().encodeResourceToString(extendedTaskSnapshot));
+
+		assertTrue(extendedTaskSnaphotResult.getMessages().isEmpty());
 	}
 }
