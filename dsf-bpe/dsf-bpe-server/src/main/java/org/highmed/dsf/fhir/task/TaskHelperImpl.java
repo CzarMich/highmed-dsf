@@ -3,7 +3,9 @@ package org.highmed.dsf.fhir.task;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.highmed.dsf.fhir.task.TaskHelper;
+import org.highmed.dsf.fhir.variables.Outputs;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Task;
@@ -54,5 +56,38 @@ public class TaskHelperImpl implements TaskHelper
 				.filter(c -> c.getType().getCoding().stream()
 						.anyMatch(co -> system.equals(co.getSystem()) && code.equals(co.getCode())))
 				.map(c -> type.cast(c.getValue()));
+	}
+
+	@Override
+	public Task.ParameterComponent createInput(String system, String code, String value)
+	{
+		return  new Task.ParameterComponent(new CodeableConcept(
+				new Coding(system, code, null)), new StringType(value));
+	}
+
+	@Override
+	public Task.ParameterComponent createInput(String system, String code, Reference reference)
+	{
+		return  new Task.ParameterComponent(new CodeableConcept(
+				new Coding(system, code, null)), reference);
+	}
+
+	@Override
+	public Task.TaskOutputComponent createOutput(String system, String code, String value)
+	{
+		return  new Task.TaskOutputComponent(new CodeableConcept(
+				new Coding(system, code, null)), new StringType(value));
+	}
+
+	@Override
+	public Task addOutputs(Task task, Outputs outputs)
+	{
+		outputs.getOutputs().forEach(output ->
+		{
+			Task.TaskOutputComponent component = createOutput(output.getSystem(), output.getCode(), output.getValue());
+			task.addOutput(component);
+		});
+
+		return task;
 	}
 }

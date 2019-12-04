@@ -46,12 +46,12 @@ import org.highmed.dsf.fhir.FhirContextLoaderListener;
 import org.highmed.dsf.fhir.authentication.AuthenticationFilter;
 import org.highmed.dsf.fhir.service.ReferenceExtractor;
 import org.highmed.dsf.fhir.service.ReferenceExtractorImpl;
-import org.highmed.dsf.fhir.spring.config.InitialDataLoadConfig;
+import org.highmed.dsf.fhir.spring.config.InitialDataLoaderConfig;
 import org.highmed.dsf.fhir.test.FhirEmbeddedPostgresWithLiquibase;
 import org.highmed.dsf.fhir.test.TestSuiteIntegrationTests;
 import org.highmed.dsf.fhir.test.X509Certificates;
-import org.highmed.fhir.client.WebserviceClient;
-import org.highmed.fhir.client.WebserviceClientJersey;
+import org.highmed.fhir.client.FhirWebserviceClient;
+import org.highmed.fhir.client.FhirWebserviceClientJersey;
 import org.highmed.fhir.client.WebsocketClient;
 import org.highmed.fhir.client.WebsocketClientTyrus;
 import org.hl7.fhir.r4.model.Bundle;
@@ -99,7 +99,7 @@ public abstract class AbstractIntegrationTest
 	private static final ReferenceExtractor extractor = new ReferenceExtractorImpl();
 
 	private static JettyServer fhirServer;
-	private static WebserviceClient webserviceClient;
+	private static FhirWebserviceClient webserviceClient;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception
@@ -119,10 +119,10 @@ public abstract class AbstractIntegrationTest
 		fhirServer = startFhirServer();
 	}
 
-	private static WebserviceClient createWebserviceClient(KeyStore trustStore, KeyStore keyStore,
+	private static FhirWebserviceClient createWebserviceClient(KeyStore trustStore, KeyStore keyStore,
 			String keyStorePassword, FhirContext fhirContext)
 	{
-		return new WebserviceClientJersey(BASE_URL, trustStore, keyStore, keyStorePassword, null, null, null, 0, 0,
+		return new FhirWebserviceClientJersey(BASE_URL, trustStore, keyStore, keyStorePassword, null, null, null, 0, 0,
 				null, fhirContext);
 	}
 
@@ -158,7 +158,7 @@ public abstract class AbstractIntegrationTest
 		JettyServer server = new JettyServer(connector, errorHandler, "/fhir", initializers, initParameter,
 				webInfClassesDirs, webInfJars, AuthenticationFilter.class);
 
-		WebSocketServerContainerInitializer.configureContext(server.getWebAppContext());
+		WebSocketServerContainerInitializer.initialize(server.getWebAppContext());
 
 		server.start();
 
@@ -329,13 +329,13 @@ public abstract class AbstractIntegrationTest
 	public void before() throws Exception
 	{
 		logger.info("Loading initial FHIR data bundles ...");
-		InitialDataLoadConfig initialDataLoadConfig = getSpringWebApplicationContext()
-				.getBean(InitialDataLoadConfig.class);
+		InitialDataLoaderConfig initialDataLoadConfig = getSpringWebApplicationContext()
+				.getBean(InitialDataLoaderConfig.class);
 		assertNotNull(initialDataLoadConfig);
 		initialDataLoadConfig.onContextRefreshedEvent(null);
 	}
 
-	protected static WebserviceClient getWebserviceClient()
+	protected static FhirWebserviceClient getWebserviceClient()
 	{
 		return webserviceClient;
 	}

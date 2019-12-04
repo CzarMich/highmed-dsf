@@ -1,24 +1,22 @@
 -  hosts: HiGHmed
-   gather_facts: false
    vars:
       user: '{{ lookup(''env'',''USER'') }}'
    become: true
-   pre_tasks:
-   -  name: Install python2 for Ansible
-      raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
-      register: output
-      changed_when: output.stdout != ""
-   -  name: Gathering Facts
-      setup: null
    tasks:
    -  name: Run dist-upgrade
       apt:
          upgrade: dist
          update_cache: true
-   -  name: Install azure kernel
+   -  name: Install linux-azure kernel
       apt:
          name: linux-azure
          state: present
+      when: "(hypervisor_type == 'hyper-v')"
+   -  name: Install linux-virtual kernel
+      apt:
+         name: linux-virtual
+         state: present
+      when: "(hypervisor_type == 'virtualbox' or hypervisor_type == 'vmware')"
    -  name: Remove dependencies that are no longer required
       apt:
          autoremove: true

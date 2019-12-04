@@ -2,6 +2,7 @@ package org.highmed.dsf.bpe.plugin;
 
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -13,7 +14,17 @@ public abstract class AbstractProcessEnginePlugin implements ProcessEnginePlugin
 {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractProcessEnginePlugin.class);
 
-	protected void delpoy(ProcessEngine processEngine, String modelFilename, BpmnModelInstance model)
+	@Override
+	public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration)
+	{
+	}
+
+	@Override
+	public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration)
+	{
+	}
+
+	protected void deploy(ProcessEngine processEngine, String modelFilename, BpmnModelInstance model)
 	{
 		RepositoryService repositoryService = processEngine.getRepositoryService();
 

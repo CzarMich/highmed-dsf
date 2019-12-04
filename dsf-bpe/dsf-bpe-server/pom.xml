@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -17,6 +17,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.highmed.dsf</groupId>
+			<artifactId>dsf-bpe-process-feasibility</artifactId>
+		</dependency>
+		<!-- provided as jar and injected on startup as plugin <dependency> <groupId>org.highmed.dsf</groupId> <artifactId>dsf-bpe-process-parent</artifactId> </dependency> 
+			<dependency> <groupId>org.highmed.dsf</groupId> <artifactId>dsf-bpe-process-child</artifactId> </dependency> -->
+		<dependency>
+			<groupId>org.highmed.dsf</groupId>
 			<artifactId>dsf-bpe-process-ping</artifactId>
 		</dependency>
 		<dependency>
@@ -27,7 +33,6 @@
 			<groupId>org.highmed.dsf</groupId>
 			<artifactId>dsf-bpe-process-update-whitelist</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.highmed.dsf</groupId>
 			<artifactId>dsf-fhir-websocket-client</artifactId>
@@ -35,6 +40,18 @@
 		<dependency>
 			<groupId>org.highmed.dsf</groupId>
 			<artifactId>dsf-fhir-webservice-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.highmed.dsf</groupId>
+			<artifactId>dsf-openehr-webservice-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.highmed.dsf</groupId>
+			<artifactId>dsf-openehr-model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.highmed.dsf</groupId>
+			<artifactId>dsf-tools-build-info-reader</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.hs-heilbronn.mi</groupId>
@@ -49,6 +66,14 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -122,4 +147,23 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/version.properties</exclude>
+				</excludes>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/version.properties</include>
+				</includes>
+			</testResource>
+		</testResources>
+	</build>
 </project>

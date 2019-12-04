@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>dsf-bpe-server-jetty</artifactId>
@@ -19,10 +19,6 @@
 			<groupId>org.highmed.dsf</groupId>
 			<artifactId>dsf-tools-db-migration</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.camunda.bpm.distro</groupId>
-			<artifactId>camunda-sql-scripts</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -38,11 +34,28 @@
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
-			<version>1.4.5</version>
+			<version>1.4.7</version>
 		</dependency>
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/version.properties</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/version.properties</include>
+				</includes>
+			</resource>
+		</resources>
+	
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

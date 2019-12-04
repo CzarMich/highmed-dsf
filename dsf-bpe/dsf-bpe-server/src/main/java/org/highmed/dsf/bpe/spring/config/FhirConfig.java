@@ -11,8 +11,10 @@ import java.security.cert.CertificateException;
 
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
-import org.highmed.dsf.fhir.client.ClientProviderImpl;
-import org.highmed.dsf.fhir.client.WebsocketClientProvider;
+import org.highmed.dsf.fhir.client.FhirClientProviderImpl;
+import org.highmed.dsf.fhir.client.FhirWebsocketClientProvider;
+import org.highmed.dsf.fhir.group.GroupHelper;
+import org.highmed.dsf.fhir.group.GroupHelperImpl;
 import org.highmed.dsf.fhir.organization.OrganizationProvider;
 import org.highmed.dsf.fhir.organization.OrganizationProviderImpl;
 import org.highmed.dsf.fhir.task.TaskHandler;
@@ -24,6 +26,8 @@ import org.highmed.dsf.fhir.variables.MultiInstanceTargetSerializer;
 import org.highmed.dsf.fhir.variables.MultiInstanceTargetsSerializer;
 import org.highmed.dsf.fhir.variables.OrganizationDeserializer;
 import org.highmed.dsf.fhir.variables.OrganizationSerializer;
+import org.highmed.dsf.fhir.variables.OutputSerializer;
+import org.highmed.dsf.fhir.variables.OutputsSerializer;
 import org.highmed.dsf.fhir.websocket.FhirConnector;
 import org.highmed.dsf.fhir.websocket.LastEventTimeIo;
 import org.hl7.fhir.r4.model.Organization;
@@ -99,7 +103,7 @@ public class FhirConfig
 	private ProcessEngine processEngine;
 
 	@Bean
-	public ObjectMapper objectMapper()
+	public ObjectMapper fhirObjectMapper()
 	{
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -141,7 +145,7 @@ public class FhirConfig
 	public ProcessEnginePlugin fhirPlugin()
 	{
 		return new FhirPlugin(domainResourceSerializer(), multiInstanceTargetSerializer(),
-				multiInstanceTargetsSerializer());
+				multiInstanceTargetsSerializer(), outputSerializer(), outputsSerializer());
 	}
 
 	@Bean
@@ -153,13 +157,25 @@ public class FhirConfig
 	@Bean
 	public MultiInstanceTargetSerializer multiInstanceTargetSerializer()
 	{
-		return new MultiInstanceTargetSerializer(objectMapper());
+		return new MultiInstanceTargetSerializer(fhirObjectMapper());
 	}
 
 	@Bean
 	public MultiInstanceTargetsSerializer multiInstanceTargetsSerializer()
 	{
-		return new MultiInstanceTargetsSerializer(objectMapper());
+		return new MultiInstanceTargetsSerializer(fhirObjectMapper());
+	}
+
+	@Bean
+	public OutputSerializer outputSerializer()
+	{
+		return new OutputSerializer(fhirObjectMapper());
+	}
+
+	@Bean
+	public OutputsSerializer outputsSerializer()
+	{
+		return new OutputsSerializer(fhirObjectMapper());
 	}
 
 	@Bean
@@ -172,11 +188,11 @@ public class FhirConfig
 	public TaskHandler taskHandler()
 	{
 		return new TaskHandler(processEngine.getRuntimeService(), processEngine.getRepositoryService(),
-				clientProvider().getLocalWebserviceClient());
+				clientProvider().getLocalWebserviceClient(), taskHelper());
 	}
 
 	@Bean
-	public WebsocketClientProvider clientProvider()
+	public FhirWebsocketClientProvider clientProvider()
 	{
 		try
 		{
@@ -199,10 +215,10 @@ public class FhirConfig
 					localWebsocketKeyStorePassword);
 			KeyStore localWebsocketTrustStore = CertificateHelper.extractTrust(localWebsocketKeyStore);
 
-			return new ClientProviderImpl(fhirContext(), localWebserviceBaseUrl, localReadTimeout, localConnectTimeout,
-					localWebserviceTrustStore, localWebserviceKeyStore, webserviceKeyStorePassword, remoteReadTimeout,
-					remoteConnectTimeout, remoteProxyPassword, remoteProxyUsername, remoteProxySchemeHostPort,
-					localWebsocketUrl, localWebsocketTrustStore, localWebsocketKeyStore,
+			return new FhirClientProviderImpl(fhirContext(), localWebserviceBaseUrl, localReadTimeout,
+					localConnectTimeout, localWebserviceTrustStore, localWebserviceKeyStore, webserviceKeyStorePassword,
+					remoteReadTimeout, remoteConnectTimeout, remoteProxyPassword, remoteProxyUsername,
+					remoteProxySchemeHostPort, localWebsocketUrl, localWebsocketTrustStore, localWebsocketKeyStore,
 					localWebsocketKeyStorePassword);
 		}
 		catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e)
@@ -228,5 +244,11 @@ public class FhirConfig
 	public TaskHelper taskHelper()
 	{
 		return new TaskHelperImpl();
+	}
+
+	@Bean
+	public GroupHelper groupHelper()
+	{
+		return new GroupHelperImpl();
 	}
 }
