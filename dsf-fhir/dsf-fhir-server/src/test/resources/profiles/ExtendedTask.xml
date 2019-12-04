@@ -10,6 +10,21 @@
   <baseDefinition value="http://highmed.org/fhir/StructureDefinition/BaseTask" />
   <derivation value="constraint" />
   <differential>
+    <element id="Task.input">
+      <path value="Task.input" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="type.coding.system" />
+        </discriminator>
+        <discriminator>
+          <type value="value" />
+          <path value="type.coding.code" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
     <element id="Task.input:baseInputSlice">
       <path value="Task.input" />
       <sliceName value="baseInputSlice" />
