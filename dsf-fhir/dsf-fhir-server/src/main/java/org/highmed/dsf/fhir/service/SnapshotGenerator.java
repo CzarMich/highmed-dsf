@@ -2,6 +2,7 @@ package org.highmed.dsf.fhir.service;
 
 import java.util.List;
 
+import org.highmed.dsf.fhir.service.exception.SnapshotBaseNotFoundException;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.utilities.validation.ValidationMessage;
 
@@ -28,8 +29,10 @@ public interface SnapshotGenerator
 			return messages;
 		}
 	}
-	
-	SnapshotWithValidationMessages generateSnapshot(StructureDefinition differential);
 
-	SnapshotWithValidationMessages generateSnapshot(String baseAbsoluteUrlPrefix, StructureDefinition differential);
+	SnapshotWithValidationMessages generateSnapshot(StructureDefinition differential)
+			throws SnapshotBaseNotFoundException;
+
+	SnapshotWithValidationMessages generateSnapshot(String baseAbsoluteUrlPrefix, StructureDefinition differential)
+			throws SnapshotBaseNotFoundException;
 }

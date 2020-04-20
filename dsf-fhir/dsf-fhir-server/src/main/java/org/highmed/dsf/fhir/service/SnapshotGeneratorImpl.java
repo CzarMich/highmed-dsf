@@ -3,13 +3,12 @@ package org.highmed.dsf.fhir.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hl7.fhir.exceptions.DefinitionException;
+import org.highmed.dsf.fhir.service.exception.SnapshotBaseNotFoundException;
 import org.hl7.fhir.r4.conformance.ProfileUtilities;
 import org.hl7.fhir.r4.context.IWorkerContext;
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext;
 import org.hl7.fhir.r4.hapi.ctx.IValidationSupport;
 import org.hl7.fhir.r4.model.StructureDefinition;
-import org.hl7.fhir.r4.model.StructureDefinition.StructureDefinitionMappingComponent;
 import org.hl7.fhir.utilities.validation.ValidationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,59 +33,25 @@ public class SnapshotGeneratorImpl implements SnapshotGenerator
 
 	@Override
 	public SnapshotWithValidationMessages generateSnapshot(StructureDefinition differential)
+			throws SnapshotBaseNotFoundException
 	{
 		return generateSnapshot("", differential);
 	}
 
 	@Override
 	public SnapshotWithValidationMessages generateSnapshot(String baseAbsoluteUrlPrefix,
-			StructureDefinition differential)
+			StructureDefinition differential) throws SnapshotBaseNotFoundException
 	{
 		logger.debug("Generating snapshot for StructureDefinition with id {}, url {}, version {}",
 				differential.getIdElement().getIdPart(), differential.getUrl(), differential.getVersion());
 
-		StructureDefinition base = worker.fetchTypeDefinition(differential.getType());
+		StructureDefinition base = worker.fetchResource(StructureDefinition.class, differential.getBaseDefinition());
+		if (base == null)
+			throw new SnapshotBaseNotFoundException(differential.getBaseDefinition());
 
 		/* ProfileUtilities is not thread safe */
 		List<ValidationMessage> messages = new ArrayList<>();
-		ProfileUtilities profileUtils = new ProfileUtilities(worker, messages, null)
-		{
-			@Override
-			public void updateMaps(StructureDefinition base, StructureDefinition derived) throws DefinitionException
-			{
-				if (base == null)
-					throw new DefinitionException("no base profile provided");
-				if (derived == null)
-					throw new DefinitionException("no derived structure provided");
-
-				for (StructureDefinitionMappingComponent baseMap : base.getMapping())
-				{
-					boolean found = false;
-					for (StructureDefinitionMappingComponent derivedMap : derived.getMapping())
-					{
-						/*
-						 * XXX NullPointerException if mapping.uri is null, see original if statement:
-						 * 
-						 * if (derivedMap.getUri().equals(baseMap.getUri()))
-						 * 
-						 * NPE fix by checking getUri != null
-						 * 
-						 * also fixes missing name based matching, via specification rule: StructureDefinition.mapping
-						 * "Must have at least a name or a uri (or both)"
-						 */
-						if ((derivedMap.getUri() != null && derivedMap.getUri().equals(baseMap.getUri()))
-								|| (derivedMap.getName() != null && derivedMap.getName().equals(baseMap.getName())))
-						{
-							found = true;
-							break;
-						}
-					}
-					if (!found)
-						derived.getMapping().add(baseMap);
-				}
-			}
-		};
-
+		ProfileUtilities profileUtils = new ProfileUtilities(worker, messages, null);
 		profileUtils.generateSnapshot(base, differential, baseAbsoluteUrlPrefix, baseAbsoluteUrlPrefix, null);
 
 		if (messages.isEmpty())

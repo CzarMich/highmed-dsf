@@ -36,6 +36,7 @@ import org.highmed.dsf.fhir.service.SnapshotDependencyAnalyzer;
 import org.highmed.dsf.fhir.service.SnapshotGenerator;
 import org.highmed.dsf.fhir.service.SnapshotGenerator.SnapshotWithValidationMessages;
 import org.highmed.dsf.fhir.service.SnapshotInfo;
+import org.highmed.dsf.fhir.service.exception.SnapshotBaseNotFoundException;
 import org.highmed.dsf.fhir.webservice.specification.StructureDefinitionService;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity;
@@ -284,7 +285,18 @@ public class StructureDefinitionServiceImpl extends
 
 	private StructureDefinition generateSnapshot(StructureDefinition differential)
 	{
-		SnapshotWithValidationMessages snapshot = snapshotGenerator.generateSnapshot(differential);
+		SnapshotWithValidationMessages snapshot;
+		try
+		{
+			snapshot = snapshotGenerator.generateSnapshot(differential);
+		}
+		catch (SnapshotBaseNotFoundException e)
+		{
+			OperationOutcome outcome = new OperationOutcome();
+			outcome.addIssue().setSeverity(IssueSeverity.ERROR).setCode(IssueType.NOTSUPPORTED)
+					.setDiagnostics("Base Profile with url " + e.getUrl() + " not found");
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(outcome).build());
+		}
 
 		if (snapshot.getMessages().isEmpty())
 			return snapshot.getSnapshot();

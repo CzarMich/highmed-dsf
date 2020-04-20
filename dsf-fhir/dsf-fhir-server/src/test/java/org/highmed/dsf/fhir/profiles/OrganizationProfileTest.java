@@ -17,6 +17,7 @@ import org.highmed.dsf.fhir.service.SnapshotGeneratorImpl;
 import org.highmed.dsf.fhir.service.StructureDefinitionReader;
 import org.highmed.dsf.fhir.service.ValueSetExpander;
 import org.highmed.dsf.fhir.service.ValueSetExpanderImpl;
+import org.highmed.dsf.fhir.service.exception.SnapshotBaseNotFoundException;
 import org.hl7.fhir.r4.model.CodeSystem;
 import org.hl7.fhir.r4.model.CodeSystem.CodeSystemContentMode;
 import org.hl7.fhir.r4.model.Enumerations.PublicationStatus;
@@ -285,7 +286,7 @@ public class OrganizationProfileTest
 				result.getMessages().stream().filter(m -> ResultSeverityEnum.ERROR.equals(m.getSeverity())).count());
 	}
 
-	private void readProfilesAndGenerateSnapshots()
+	private void readProfilesAndGenerateSnapshots() throws SnapshotBaseNotFoundException
 	{
 		StructureDefinitionReader reader = new StructureDefinitionReader(context);
 		List<StructureDefinition> diffs = reader.readXml(

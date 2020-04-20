@@ -15,6 +15,7 @@ import org.highmed.dsf.fhir.service.ResourceValidatorImpl;
 import org.highmed.dsf.fhir.service.SnapshotGenerator.SnapshotWithValidationMessages;
 import org.highmed.dsf.fhir.service.SnapshotGeneratorImpl;
 import org.highmed.dsf.fhir.service.StructureDefinitionReader;
+import org.highmed.dsf.fhir.service.exception.SnapshotBaseNotFoundException;
 import org.hl7.fhir.r4.hapi.validation.FhirInstanceValidator;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.StructureDefinition;
@@ -42,6 +43,7 @@ public class ValidationTest
 	}
 
 	private static List<StructureDefinition> createSnapshots(List<StructureDefinition> diffs, FhirContext fhirContext)
+			throws SnapshotBaseNotFoundException
 	{
 		List<StructureDefinition> snapshots = new ArrayList<StructureDefinition>(diffs.size());
 		for (StructureDefinition diff : diffs)
