@@ -14,6 +14,7 @@ import org.highmed.dsf.fhir.hapi.SnapshotTest;
 import org.highmed.dsf.fhir.hapi.StructureDefinitionTreeTest;
 import org.highmed.dsf.fhir.hapi.SubscriptionTest;
 import org.highmed.dsf.fhir.hapi.ValidationTest;
+import org.highmed.dsf.fhir.profiles.ExtendedTaskProfilesTest;
 import org.highmed.dsf.fhir.profiles.ProfileTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -23,7 +24,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ ResourceReferenceTest.class, BundleTest.class, CodeSystemTest.class, EndpointTest.class,
 		IdTypeTest.class, OrganizationTest.class, ParametersTest.class, ParserTest.class, ReferenceTypTest.class,
 		SerializationTest.class, SnapshotTest.class, StructureDefinitionTreeTest.class, SubscriptionTest.class,
-		ValidationTest.class, ProfileTests.class })
+		ValidationTest.class, ProfileTests.class, ExtendedTaskProfilesTest.class })
 public class TestSuiteUnitTests
 {
 }
